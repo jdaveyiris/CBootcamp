@@ -8,11 +8,12 @@ namespace SupportBank
     class Program
     {
         static Dictionary<string, Account> Balances = new Dictionary<string, Account>();
+        static string[] newerText;
         static void Main(string[] args)
-        {     
+        {
             string path = @"C:\Users\Jim.Davey\Work\CBootcamp\CBootcamp\SupportBank\Transactions2014.csv";
             string[] newText = File.ReadAllLines(path);
-            string[] newerText = newText.Skip(1).ToArray();
+            newerText = newText.Skip(1).ToArray();
            
             foreach (string line in newerText)
             {
@@ -23,64 +24,24 @@ namespace SupportBank
                 string narrative = trans[3];
                 decimal amount = decimal.Parse(trans[4]);
 
-                Transaction transaction = new Transaction(DateTime.Parse(trans[0]), trans[1], trans[2], trans[3], decimal.Parse(trans[4]));
-                if (!Balances.ContainsKey(trans[1]))
+                Transaction transaction = new Transaction(date, to, from, narrative, amount);
+                if (!Balances.ContainsKey(to))
                     {
-                    Account account = new Account(trans[1], 0);
+                    Account account = new Account(to, 0);
                     Balances.Add(account.Name, account);
                     }
-                if (!Balances.ContainsKey(trans[2]))
+                if (!Balances.ContainsKey(from))
                 {
-                    Account account = new Account(trans[2], 0);
+                    Account account = new Account(from, 0);
                     Balances.Add(account.Name, account);
                 }
 
                 Balances[from].Balance -= amount;
                 Balances[to].Balance += amount;
+
+                
             }
-            PrintAllAccounts();
 
-            //got to look through each transaction in order to update the account.Balance of the To and From.
-            //not sure how to loop through each transaction
-            //syntax !!!
-            //
-              
-            
-                // loop through each transaction, check (if) name in to or from, print the data in a console.writeline
-                /*
-                string ListTransaction(string name)
-                    {
-                        foreach (var transaction in Transaction)
-                        {
-                            if (name == transaction[1])
-                            {
-                                Console.WriteLine($"On {0}, {1} paid {2} £{3} for {4}",
-                                    transaction[0],
-                                    transaction[1],
-                                    transaction[2],
-                                    transaction[4],
-                                    transaction[3]);
-                            }
-                            else if (name == transaction[2])
-                            {
-                                Console.WriteLine($"On {0}, {1} paid {2} £{3} for {4}",
-                                    transaction[0],
-                                    transaction[1],
-                                    transaction[2],
-                                    transaction[4],
-                                    transaction[3]);
-                            }
-                        }
-                    }
-                */
-
-
-            // .split 
-            // creating class of transactions and one for accounts 
-            // class of person 
-            // dictionary key: name , value: balance 
-            // transaction list inside the accounts class 
-            // then worry about transactions 
             /*
             foreach (KeyValuePair<string, Account> x in Balances)
             {
@@ -88,8 +49,27 @@ namespace SupportBank
                 Console.WriteLine(x.Value.Balance);
             }
             */
+            Console.WriteLine("What would you like to do?\n1) Print All Accounts \n2) List Someones Transactions");
+            int answer = int.Parse(Console.ReadLine());
+            if (answer == 1)
+            {
+                PrintAllAccounts();
+                Console.ReadLine();
+            } else if (answer == 2)
+            {
+                Console.WriteLine("Please chose someone from the following list:");
+                foreach (var acc in Balances)
+                {
+                    Console.WriteLine(acc.Key);
+                }
+                ListTransaction(Console.ReadLine());
+            } else
+            {
+                Console.WriteLine("That wasn't a 1 or 2 now was it. I am leaving you now.");
+            }
+                
         }
-
+       
         static void PrintAllAccounts()
         {
             foreach (var acc in Balances)
@@ -97,5 +77,30 @@ namespace SupportBank
                 Console.WriteLine(acc.Key + "," + acc.Value.Balance);
             }
         }
+        static void ListTransaction(string name)
+        {
+            foreach (string line in newerText)
+            {
+                string[] trans = line.Split(',');
+                DateTime date = DateTime.Parse(trans[0]);
+                string to = trans[1];
+                string from = trans[2];
+                string narrative = trans[3];
+                decimal amount = decimal.Parse(trans[4]);
+                if (name == to)
+                {
+                    Console.WriteLine($"On {date.ToShortDateString()}, {to} paid {from} £{amount} for {narrative}.");
+                }
+                if (name == from)
+                {
+                    Console.WriteLine($"On {date.ToShortDateString()}, {to} paid {from} £{amount} for {narrative}.");
+                }
+                
+            }
+        }
+
+       
+        
+
     }
 }
